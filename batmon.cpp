@@ -1,7 +1,22 @@
 /**
- * This program is released under ...
+ * This file is part of EasyBatMon.
  *
- * Berardi Davide <berardi.dav@gmail.com>
+ * Easy BatMon is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * Foobar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Davide Berardi <berardi.dav@gmail.com> 2020
+ *
+ * Main EasyBatMon source code.
  */
 #include <QFile>
 #include <QDebug>
@@ -10,6 +25,7 @@
 #include <QApplication>
 
 #include "batmon.h"
+#include "batmon_configuration.h"
 
 BatteryMonitor::BatteryMonitor() {
 	QTimer *updateTimer = new QTimer(this);
@@ -39,14 +55,25 @@ void BatteryMonitor::loadConfiguration()
 	batteryiconpath = D_BATTERYICONPATH;
 	
 	const QList<QString> loadpaths = QList<QString>() <<
-		QString::fromStdString(qgetenv("HOME").toStdString()) + ".config/batmon/batmon.conf" <<
-		QString::fromStdString(qgetenv("HOME").toStdString()) + ".batmonrc" <<
+		QString::fromStdString(qgetenv("HOME").toStdString()) + "/.config/batmon/batmon.conf" <<
+		QString::fromStdString(qgetenv("HOME").toStdString()) + "/.batmonrc" <<
 		QString("/etc/batmon.conf")
 		;
 
 	for (auto path: loadpaths) {
 		if (loadConfigurationFile(path))
 			break;
+	}
+
+	if (verbose) {
+		qWarning() << 
+			" verbose : "                  << verbose << "\n" <<
+			"icon    : "                  << icon    << "\n" <<
+			"iconpos : "                  << iconpos << "\n" <<
+			"battery_charge_full_file : " << battery_charge_full_file << "\n" <<
+			"battery_charge_now_file  : " << battery_charge_now_file  << "\n" <<
+			"battery_status_file      : " << battery_status_file      << "\n" <<
+			"battery_iconpath         : " << batteryiconpath << "\n";
 	}
 }
 
@@ -57,12 +84,30 @@ bool BatteryMonitor::loadConfigurationFile(const QString &filepath)
 		return false;
 
 	while (!f.atEnd()) {
+		bool found = false;
 		QString s = QString::fromStdString(f.readLine().toStdString()).trimmed();
 
-		if (s.contains(QRegExp("^\\s+#")))
+		if (s.contains(QRegExp("^\\s*#")) || s.length() == 0)
 			continue;
-		
-		qWarning() << s;
+
+		QList<QString> parameters = s.split("=");
+		QString confname  = parameters[0].trimmed();
+		QString confvalue = parameters[1].trimmed();
+
+		/* XXX This could be easily transformed to a class. */
+#define X(_a,_b,_c) \
+		if (!QString(_a).compare(confname)) {                 \
+			Configuration<_b> conf = Configuration<_b>(); \
+			conf.loadValue(confvalue);                    \
+			_c = (typeof _c) conf.getValue();             \
+			found = true;                                 \
+		}
+		KEYS
+#undef X
+
+		if (!found) {
+			qWarning() << "Unknown option " << confname;
+		}
 	}
 
 	f.close();

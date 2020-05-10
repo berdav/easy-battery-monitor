@@ -1,0 +1,19 @@
+# This is the EasyBatMon configuration file.
+
+# The path of the icons to use
+battery_iconpath = /usr/share/icons/Adwaita/16x16/status/
+
+# Time between checks in micro seconds
+update_interval = 1000
+
+# Verbose mode
+verbose = 0
+
+# 0 = icon on the left
+# 1 = icon on the right
+iconpos = 1
+
+# Path of the refence full-battery file
+battery_charge_full_file = /sys/class/power_supply/BAT0/energy_full
+battery_charge_now_file  = /sys/class/power_supply/BAT0/energy_now
+battery_status_file      = /sys/class/power_supply/BAT0/status
