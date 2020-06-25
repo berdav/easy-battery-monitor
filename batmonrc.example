@@ -3,7 +3,7 @@
 # The path of the icons to use
 battery_iconpath = /usr/share/icons/Adwaita/16x16/status/
 
-# Time between checks in micro seconds
+# Time between checks in milli seconds
 update_interval = 1000
 
 # Verbose mode
