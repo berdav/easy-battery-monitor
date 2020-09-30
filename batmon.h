@@ -24,6 +24,8 @@
 #include <QObject>
 #include <QSystemTrayIcon>
 
+#include "exe_checker.h"
+
 /* Position of the icon in the tray */
 enum iconposition {
 	POS_LEFT,
@@ -58,6 +60,9 @@ enum icontype {
 #define D_ICON_POSITION POS_RIGHT
 /* If true, the daemon will print more information when run */
 #define D_VERBOSE false
+/* If true, the daemon will check if another process with the same name
+ * is running and then refuse to start */
+#define D_CHECK_NOT_RUNNING false
 
 class BatteryMonitor : public QObject
 {
@@ -69,6 +74,7 @@ class BatteryMonitor : public QObject
 		void update();
 
 	private:
+		int do_check_running();
 		/* Load default configuration */
 		void loadConfiguration();
 		/* Load the configuration file in memory */
@@ -96,6 +102,9 @@ class BatteryMonitor : public QObject
 		bool icon;
 		enum iconposition iconpos;
 		bool verbose;
+		bool check_not_running;
+
+		ExeChecker exe_checker;
 };
 
 #define KEYS                                                             \
@@ -106,6 +115,7 @@ class BatteryMonitor : public QObject
 	X("battery_iconpath",         QString, batteryiconpath)          \
 	X("battery_charge_full_file", QString, battery_charge_full_file) \
 	X("battery_charge_now_file",  QString, battery_charge_now_file)  \
-	X("battery_status_file",      QString, battery_status_file)
+	X("battery_status_file",      QString, battery_status_file)      \
+	X("check_not_running",        int,     check_not_running)
 
 #endif /* _BATMON_H */

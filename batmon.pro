@@ -1,5 +1,5 @@
 CONFIG += qt
 QT += widgets
 
-SOURCES = batmon.cpp
-HEADERS = batmon.h
+SOURCES = batmon.cpp exe_checker.cpp
+HEADERS = batmon.h   exe_checker.h

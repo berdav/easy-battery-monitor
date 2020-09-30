@@ -27,13 +27,25 @@
 #include "batmon.h"
 #include "batmon_configuration.h"
 
-BatteryMonitor::BatteryMonitor() {
+int BatteryMonitor::do_check_running()
+{
+	ExeChecker *exe_checker = new ExeChecker();
+	return exe_checker->search();
+}
+
+BatteryMonitor::BatteryMonitor()
+{
 	QTimer *updateTimer = new QTimer(this);
 	if (!updateTimer) {
 		exit(1);
 	}
 
 	loadConfiguration();
+
+	if (check_not_running && do_check_running()) {
+		qWarning() << "The program is already running, exiting.";
+		exit(1);
+	}
 
 	connect(updateTimer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -53,7 +65,8 @@ void BatteryMonitor::loadConfiguration()
 	battery_status_file = D_STATUS_FILE;
 	update_interval = D_UPDATE_INTERVAL;
 	batteryiconpath = D_BATTERYICONPATH;
-	
+	check_not_running = D_CHECK_NOT_RUNNING;
+
 	const QList<QString> loadpaths = QList<QString>() <<
 		QString::fromStdString(qgetenv("HOME").toStdString()) + "/.config/batmon/batmon.conf" <<
 		QString::fromStdString(qgetenv("HOME").toStdString()) + "/.batmonrc" <<
@@ -67,13 +80,14 @@ void BatteryMonitor::loadConfiguration()
 
 	if (verbose) {
 		qWarning() << 
-			" verbose : "                  << verbose << "\n" <<
+			"verbose : "                  << verbose << "\n" <<
 			"icon    : "                  << icon    << "\n" <<
 			"iconpos : "                  << iconpos << "\n" <<
 			"battery_charge_full_file : " << battery_charge_full_file << "\n" <<
 			"battery_charge_now_file  : " << battery_charge_now_file  << "\n" <<
 			"battery_status_file      : " << battery_status_file      << "\n" <<
-			"battery_iconpath         : " << batteryiconpath << "\n";
+			"battery_iconpath         : " << batteryiconpath << "\n"  <<
+			"check_not_running        : " << check_not_running << "\n";
 	}
 }
 
