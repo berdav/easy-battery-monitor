@@ -157,9 +157,11 @@ void BatteryMonitor::setTextIcon(enum icontype icon, const unsigned int percent)
 
 	QPainter painter(&pixmap);
 
-	if (icon == ICON_CHARGE)
+	if (icon == ICON_CHARGE) {
 		painter.setPen(Qt::white);
-	if (icon == ICON_DISCHARGE) {
+	} if (icon == ICON_FULL) {
+		painter.setPen(Qt::green);
+	} if (icon == ICON_DISCHARGE) {
 		if (percent < 30)
 			painter.setPen(Qt::red);
 		else
@@ -235,11 +237,13 @@ void BatteryMonitor::update(void) {
 	if (charge_full != 0)
 		charge_pct = (((double)charge_now / (double)charge_full) * 100 + 0.5);
 
-	if (!status.compare("Charging"))
+	if (!status.compare("Charging")) {
 		setIcon(ICON_CHARGE, charge_pct);
-	else if (!status.compare("Discharging") || !status.compare(""))
+	} else if (!status.compare("Discharging") || !status.compare("")) {
 		setIcon(ICON_DISCHARGE, charge_pct);
-	else {
+	} else if (!status.compare("Full")) {
+		setIcon(ICON_FULL, charge_pct);
+	} else {
 		qWarning() << "Warn: Unknown status: " << status;
 		setIcon(ICON_NONE, 0);
 	}
