@@ -38,7 +38,8 @@ enum iconposition {
 enum icontype {
 	ICON_NONE,
 	ICON_DISCHARGE,
-	ICON_CHARGE
+	ICON_CHARGE,
+	ICON_FULL
 };
 
 /* Default place where the battery icons are placed. */
