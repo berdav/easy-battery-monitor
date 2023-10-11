@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QPainter>
 #include <QApplication>
+#include <QSvgRenderer>
 
 #include "batmon.h"
 #include "batmon_configuration.h"
@@ -196,19 +197,20 @@ void BatteryMonitor::setIcoIcon(enum icontype icon, const unsigned int percent)
 			batteryicon += QString("-charging");
 	}
 
-	batteryicon += QString("-symbolic.symbolic.png");
+	batteryicon += QString("-symbolic.svg");
 
 	if (verbose)
 		qWarning() << batteryicon;
 
-	QImage iconimage(batteryicon, "png");
-	iconimage.invertPixels(QImage::InvertRgb);
+	QSvgRenderer renderer(batteryicon);
+	QImage image(16, 16, QImage::Format_ARGB32);
+	image.fill(QColor(0,0,0,0));
 
-	QPixmap pixmap(16, 16);
-	pixmap.fill(QColor(0,0,0,0));
-	pixmap.convertFromImage(iconimage);
+	QPainter painter(&image);
+	renderer.render(&painter);
+	image.invertPixels(QImage::InvertRgb);
 
-	trayiconico.setIcon(pixmap);
+	trayiconico.setIcon(QPixmap::fromImage(image));
 	trayiconico.setToolTip("Battery status");
 	trayiconico.setVisible(true);
 }

@@ -1,7 +1,7 @@
 # This is the EasyBatMon configuration file.
 
 # The path of the icons to use
-battery_iconpath = /usr/share/icons/Adwaita/16x16/status/
+battery_iconpath = /usr/share/icons/Adwaita/symbolic/status/
 
 # Time between checks in milli seconds
 update_interval = 1000
